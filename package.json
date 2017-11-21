@@ -1,0 +1,30 @@
+{
+  "name": "node-practise",
+  "version": "1.0.0",
+  "description": "node server practise project",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andydean565/node-practise.git"
+  },
+  "keywords": [
+    "node",
+    "server"
+  ],
+  "author": "Andrew Dean",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andydean565/node-practise/issues"
+  },
+  "homepage": "https://github.com/andydean565/node-practise#readme",
+  "dependencies": {
+    "express": "^4.16.2",
+    "jquery": "^3.2.1",
+    "websocket": "^1.0.25",
+    "neo4j-driver": "^1.5.0"
+  }
+}
