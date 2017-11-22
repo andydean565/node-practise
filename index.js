@@ -6,22 +6,27 @@ var db = {
 };
 
 var server = {
-  'ip' : '0.0.0.0',
-  'port' : 1337
+  'ip' : process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0',
+  'port' : process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080
 }
 
 var http = require('http');
     express = require('express')
+    ejs = require('ejs')
     neo4j = require('neo4j-driver').v1;
     app = express();
     driver = neo4j.driver(db.url, neo4j.auth.basic(db.username, db.password));
+
+app.engine('html', ejs.renderFile);
+app.use(express.static(__dirname + '../view'));
+
 
 //------ SETTINGS END ------//
 
 //------------------DATA START------------------//
 
 app.get('/', function (req, res) {
-    res.render('index.html', { pageCountMessage : null});
+    res.render('index.html');
 });
 
 //------------------DATA END------------------//
