@@ -7,7 +7,7 @@ var db = {
 
 var server = {
   'ip' : process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0',
-  'port' : process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080
+  'port' : process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 1337
 }
 
 var http = require('http');
@@ -15,9 +15,11 @@ var http = require('http');
     ejs = require('ejs')
     neo4j = require('neo4j-driver').v1;
     app = express();
+    bodyParser = require('body-parser')
     driver = neo4j.driver(db.url, neo4j.auth.basic(db.username, db.password));
 
 app.engine('html', ejs.renderFile);
+app.use(bodyParser.json());
 app.use(express.static(__dirname + '../view'));
 
 
@@ -27,6 +29,10 @@ app.use(express.static(__dirname + '../view'));
 
 app.get('/', function (req, res) {
     res.render('index.html');
+});
+
+app.get('/addemployee', function (req, res) {
+  res.json({ a: 1 });
 });
 
 //------------------DATA END------------------//
