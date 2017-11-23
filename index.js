@@ -7,7 +7,7 @@ var db = {
 
 var server = {
   'ip' : process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0',
-  'port' : process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 1337
+  'port' : process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080
 }
 
 var http = require('http');
