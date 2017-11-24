@@ -15,9 +15,11 @@ var http = require('http');
     ejs = require('ejs')
     neo4j = require('neo4j-driver').v1;
     app = express();
+    bodyParser = require('body-parser')
     driver = neo4j.driver(db.url, neo4j.auth.basic(db.username, db.password));
 
 app.engine('html', ejs.renderFile);
+<<<<<<< HEAD
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -25,6 +27,9 @@ app.use(function(req, res, next) {
   next();
 });
 
+=======
+app.use(bodyParser.json());
+>>>>>>> 3b7bf104791b5541f208fa1ab9356be00a881832
 app.use(express.static(__dirname + '../view'));
 
 
@@ -38,6 +43,10 @@ app.get('/addemployee', function (req, res) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.json("{a : 1}");
+});
+
+app.get('/addemployee', function (req, res) {
+  res.json({ a: 1 });
 });
 
 //------------------DATA END------------------//
