@@ -10,44 +10,39 @@ var server = {
   'port' : process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080
 }
 
-var http = require('http');
-    express = require('express')
-    ejs = require('ejs')
-    neo4j = require('neo4j-driver').v1;
-    app = express();
-    bodyParser = require('body-parser')
+var http = require('http'),
+    express = require('express'),
+    ejs = require('ejs'),
+    neo4j = require('neo4j-driver').v1,
+    app = express(),
+    bodyParser = require('body-parser'),
+    cors = require('cors'),
     driver = neo4j.driver(db.url, neo4j.auth.basic(db.username, db.password));
 
-app.engine('html', ejs.renderFile);
-<<<<<<< HEAD
 
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
-
-=======
-app.use(bodyParser.json());
->>>>>>> 3b7bf104791b5541f208fa1ab9356be00a881832
-app.use(express.static(__dirname + '../view'));
-
+    app.configure(function() {
+      app.engine('html', ejs.renderFile);
+      app.use(bodyParser.json());
+      app.use(cors());
+      app.use(express.static(__dirname + '../view'));
+    });
 
 //------ SETTINGS END ------//
 
 //------------------DATA START------------------//
 
+app.all('/*', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  next();
+});
+
 app.get('/', function (req, res) {res.render('index.html');});
 
 app.get('/addemployee', function (req, res) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.json("{a : 1}");
 });
 
-app.get('/addemployee', function (req, res) {
-  res.json({ a: 1 });
-});
 
 //------------------DATA END------------------//
 
