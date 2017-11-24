@@ -41,6 +41,11 @@ app.get('/addemployee', function (req, res) {
   res.json("{a : 1}");
 });
 
+app.post('/addemployee', function (req, res) {
+  res.setHeader('Content-Type', 'application/json');
+  res.json("{b : 1}");
+});
+
 
 //------------------DATA END------------------//
 
