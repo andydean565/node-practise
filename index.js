@@ -19,19 +19,10 @@ var http = require('http'),
     cors = require('cors'),
     driver = neo4j.driver(db.url, neo4j.auth.basic(db.username, db.password));
 
-<<<<<<< HEAD
     app.engine('html', ejs.renderFile);
     app.use(bodyParser.json());
     app.use(cors());
     app.use(express.static(__dirname + '../view'));
-=======
-    app.configure(function() {
-      app.engine('html', ejs.renderFile);
-      app.use(bodyParser.json());
-      app.use(cors());
-      app.use(express.static(__dirname + '../view'));
-    });
->>>>>>> 3356ed904a86dbcb59605d1c410e7d91609ff88f
 
 //------ SETTINGS END ------//
 
