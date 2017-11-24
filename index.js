@@ -37,6 +37,7 @@ app.all('/*', function(req, res, next) {
 app.get('/', function (req, res) {res.render('index.html');});
 
 app.get('/addemployee', function (req, res) {
+  res.setHeader('Content-Type', 'application/json');
   res.json("{a : 1}");
 });
 
