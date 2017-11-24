@@ -18,6 +18,13 @@ var http = require('http');
     driver = neo4j.driver(db.url, neo4j.auth.basic(db.username, db.password));
 
 app.engine('html', ejs.renderFile);
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
 app.use(express.static(__dirname + '../view'));
 
 
@@ -25,8 +32,12 @@ app.use(express.static(__dirname + '../view'));
 
 //------------------DATA START------------------//
 
-app.get('/', function (req, res) {
-    res.render('index.html');
+app.get('/', function (req, res) {res.render('index.html');});
+
+app.get('/addemployee', function (req, res) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.json("{a : 1}");
 });
 
 //------------------DATA END------------------//
