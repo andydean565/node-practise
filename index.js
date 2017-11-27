@@ -1,14 +1,35 @@
 //------ SETTINGS START ------//
 var db = {
-  'url' : 'bolt://hobby-kmoladampbiogbkelgkfagal.dbs.graphenedb.com:24786',
-  'username' : 'webConnect',
-  'password' : 'b.ryA4HdyLygdx.QaFLplpKB3qWDWkX'
+  'url' : 'bolt://127.0.0.1',
+  'port' : '7687',
+  'username' : 'neo4j',
+  'password' : 'neo4j'
 };
 
 var server = {
   'ip' : process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0',
   'port' : process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080
 }
+
+var codes = {
+  'success' : 1,
+  'dbError' : 2,
+  'inputError' : 3,
+  'unknown' : 4
+}
+
+var labels = {
+  'employee' : 'Employee',
+  'department' : 'Department'
+}
+
+//------------------MODELS START------------------//
+
+var employeeModel = ['first_name', 'surename', 'email', 'job_title'];
+var departmentModel = ['name', 'description'];
+
+//------------------MODELS END------------------//
+
 
 var http = require('http'),
     express = require('express'),
@@ -17,9 +38,10 @@ var http = require('http'),
     app = express(),
     bodyParser = require('body-parser'),
     cors = require('cors'),
-    driver = neo4j.driver(db.url, neo4j.auth.basic(db.username, db.password));
+    driver = neo4j.driver((db.url + ":" + db.port), neo4j.auth.basic(db.username, db.password));
 
     app.engine('html', ejs.renderFile);
+    app.use(bodyParser.urlencoded({ extended: true }));
     app.use(bodyParser.json());
     app.use(cors());
     app.use(express.static(__dirname + '../view'));
@@ -36,18 +58,110 @@ app.all('/*', function(req, res, next) {
 
 app.get('/', function (req, res) {res.render('index.html');});
 
-app.get('/addemployee', function (req, res) {
+app.get('/addEmployee', function (req, res) {
   res.setHeader('Content-Type', 'application/json');
   res.json("{a : 1}");
 });
 
-app.post('/addemployee', function (req, res) {
-  res.setHeader('Content-Type', 'application/json');
-  res.json("{b : 1}");
+//add employee
+app.post('/addEmployee', function (req, res) {
+
+  var parameters = setPara(employeeModel, req.body);
+  var params = createPara(parameters);
+  var statement = "MERGE (e:" + labels.employee + " {" + params + "}) RETURN e";
+
+  //start session
+  var session = driver.session();
+  session.run(statement, parameters).subscribe({
+    onNext: function (record) {
+      console.log(record);
+    },
+    onCompleted: function () {
+      res.json(codes.success);
+      session.close();
+    },
+    onError: function (error) {
+      res.json(codes.dbError);
+      console.log(error);
+    }
+  });
 });
 
+//add department
+app.post('/addDepartment', function (req, res) {
+  var parameters = setPara(departmentModel, req.body);
+  var params = createPara(parameters);
+  var statement = "MERGE (d:" + labels.department + " {" + params + "}) RETURN d";
+
+  //start session
+  var session = driver.session();
+  session.run(statement, parameters).subscribe({
+    onNext: function (record) {
+      console.log(record);
+    },
+    onCompleted: function () {
+      res.json(codes.success);
+      session.close();
+    },
+    onError: function (error) {
+      res.json(codes.dbError);
+      console.log(error);
+    }
+  });
+});
+
+//add department
+app.post('/allEmployees', function (req, res) {
+  var statement = "MATCH (e:" + labels.employee + ") RETURN e";
+
+  //start session
+  var session = driver.session();
+  session.run(statement, parameters).subscribe({
+    onNext: function (record) {
+      res.json(record);
+    },
+    onCompleted: function () {
+      res.json(codes.success);
+      session.close();
+    },
+    onError: function (error) {
+      res.json(codes.dbError);
+      console.log(error);
+    }
+  });
+});
 
 //------------------DATA END------------------//
+
+//------------------FUNCTION START------------------//
+
+function setPara(model, parameters){
+  var obj = {};
+  model.forEach(function(prop) {obj[prop] = parameters[prop];});
+  return obj;
+
+}
+
+function createPara(parameters){
+  var params = "", i = 0;
+  var last = lastInObj(parameters);
+  for (const field in parameters) {
+    if(field != undefined || parameters[field] !== undefined){
+      params += "" + field + ": {" + field + "}";
+      if(last !== i){params += ", ";}
+      i++;
+    }
+  }
+  return params;
+}
+
+function lastInObj(parameters){
+  var keys = Object.keys(parameters);
+  var last = (keys.length - 1);
+  return last;
+}
+
+//------------------FUNCTION END------------------//
 
 //------------------ERRORS START------------------//
 
