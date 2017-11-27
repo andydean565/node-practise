@@ -8,7 +8,7 @@ var db = {
 
 var server = {
   'ip' : process.env.IP   || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0',
-  'port' : process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080
+  'port' : process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 1337
 }
 
 var codes = {
@@ -110,18 +110,59 @@ app.post('/addDepartment', function (req, res) {
   });
 });
 
-//add department
-app.post('/allEmployees', function (req, res) {
-  var statement = "MATCH (e:" + labels.employee + ") RETURN e";
+//get employees
+app.get('/Employees', function (req, res) {
+
+  var input = req.body;
+  var statement = 'MATCH (e:Employee)';
+  var back = ' RETURN e'
+
+  if(input.department !== undefined && input.department !== null) {
+    statement += 'OPTIONAL MATCH (e)<-[r:In]-(d:Department)';
+    back += ',collect({e.email, e.first_name, e.surename}) as manager';
+  }
+
+  if(input.manager !== undefined && input.manager !== null) {
+    statement += 'OPTIONAL MATCH (e)<-[g:Manager]-(m:employee)';
+    back += ',d.name as department';
+  }
+
+  statement = statement + back;
+
+  var data = [];
+  //start session
+  var session = driver.session();
+  session.run(statement).subscribe({
+    onNext: function (record) {
+      data.push(record);
+    },
+    onCompleted: function () {
+      res.json(data);
+      session.close();
+    },
+    onError: function (error) {
+      res.json(codes.dbError);
+      console.log(error);
+    }
+  });
+});
+
+app.get('/departments', function (req, res) {
+
+  var input = req.body;
+  var statement = 'MATCH (d:' + labels.department + ')';
+  var back = ' RETURN d'
+  statement = statement + back;
+  var data = [];
 
   //start session
   var session = driver.session();
-  session.run(statement, parameters).subscribe({
+  session.run(statement).subscribe({
     onNext: function (record) {
-      res.json(record);
+      data.push(record);
     },
     onCompleted: function () {
-      res.json(codes.success);
+      res.json(data);
       session.close();
     },
     onError: function (error) {
