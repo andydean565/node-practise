@@ -96,9 +96,7 @@ app.post('/addDepartment', function (req, res) {
   //start session
   var session = driver.session();
   session.run(statement, parameters).subscribe({
-    onNext: function (record) {
-      console.log(record);
-    },
+    onNext: function (record) {console.log(record);},
     onCompleted: function () {
       res.json(codes.success);
       session.close();
@@ -130,12 +128,9 @@ app.get('/Employees', function (req, res) {
   statement = statement + back;
 
   var data = [];
-  //start session
   var session = driver.session();
   session.run(statement).subscribe({
-    onNext: function (record) {
-      data.push(record);
-    },
+    onNext: function (record) {data.push(record);},
     onCompleted: function () {
       res.json(data);
       session.close();
