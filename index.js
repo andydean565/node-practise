@@ -68,7 +68,17 @@ app.post('/addEmployee', function (req, res) {
 
   var parameters = setPara(employeeModel, req.body);
   var params = createPara(parameters);
-  var statement = "MERGE (e:" + labels.employee + " {" + params + "}) RETURN e";
+  var statement = "", end = ""
+
+  //department
+  if(req.body.department){
+    statement += "MATCH(d:Department{name : {department}}) ";
+    parameters.department = req.body.department.name;
+    end += "CREATE (e)-[r:IN]->(d)";
+  }
+
+  statement += "MERGE (e:" + labels.employee + " {" + params + "}) ";
+  statement += end;
 
   //start session
   var session = driver.session();
@@ -115,15 +125,15 @@ app.get('/Employees', function (req, res) {
   var statement = 'MATCH (e:Employee)';
   var back = ' RETURN e'
 
-  if(input.department !== undefined && input.department !== null) {
-    statement += 'OPTIONAL MATCH (e)<-[r:In]-(d:Department)';
-    back += ',collect({e.email, e.first_name, e.surename}) as manager';
-  }
+  // if(input.department !== undefined && input.department !== null) {
+    statement += 'OPTIONAL MATCH (e)-[r:IN]->(d:Department)';
+    back += ',d';
+  // }
 
-  if(input.manager !== undefined && input.manager !== null) {
-    statement += 'OPTIONAL MATCH (e)<-[g:Manager]-(m:employee)';
-    back += ',d.name as department';
-  }
+  // if(input.manager !== undefined && input.manager !== null) {
+    statement += 'OPTIONAL MATCH (e)<-[g:MANAGER]-(m:employee)';
+    back += ',m';
+  // }
 
   statement = statement + back;
 
