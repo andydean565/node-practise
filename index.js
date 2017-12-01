@@ -97,6 +97,28 @@ app.post('/addEmployee', function (req, res) {
   });
 });
 
+//assign department
+app.post('/assignDepartment', function (req, res) {
+
+
+
+  //start session
+  var session = driver.session();
+  session.run(statement, parameters).subscribe({
+    onNext: function (record) {
+      console.log(record);
+    },
+    onCompleted: function () {
+      res.json(codes.success);
+      session.close();
+    },
+    onError: function (error) {
+      res.json(codes.dbError);
+      console.log(error);
+    }
+  });
+});
+
 //add department
 app.post('/addDepartment', function (req, res) {
   var parameters = setPara(departmentModel, req.body);
@@ -124,16 +146,12 @@ app.get('/Employees', function (req, res) {
   var input = req.body;
   var statement = 'MATCH (e:Employee)';
   var back = ' RETURN e'
-
-  // if(input.department !== undefined && input.department !== null) {
-    statement += 'OPTIONAL MATCH (e)-[r:IN]->(d:Department)';
-    back += ',d';
-  // }
-
-  // if(input.manager !== undefined && input.manager !== null) {
-    statement += 'OPTIONAL MATCH (e)<-[g:MANAGER]-(m:employee)';
-    back += ',m';
-  // }
+  //department
+  statement += 'OPTIONAL MATCH (e)-[r:IN]->(d:Department)';
+  back += ',d';
+  //manager
+  statement += 'OPTIONAL MATCH (e)<-[g:MANAGER]-(m:employee)';
+  back += ',m';
 
   statement = statement + back;
 
@@ -185,7 +203,6 @@ function setPara(model, parameters){
   var obj = {};
   model.forEach(function(prop) {obj[prop] = parameters[prop];});
   return obj;
-
 }
 
 function createPara(parameters){
