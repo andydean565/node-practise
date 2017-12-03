@@ -58,18 +58,12 @@ app.all('/*', function(req, res, next) {
 
 app.get('/', function (req, res) {res.render('index.html');});
 
-app.get('/addEmployee', function (req, res) {
-  res.setHeader('Content-Type', 'application/json');
-  res.json("{a : 1}");
-});
-
 //add employee
 app.post('/addEmployee', function (req, res) {
 
   var parameters = setPara(employeeModel, req.body);
   var params = createPara(parameters);
   var statement = "", end = ""
-
   //department
   if(req.body.department){
     statement += "MATCH(d:Department{name : {department}}) ";
@@ -100,8 +94,55 @@ app.post('/addEmployee', function (req, res) {
 //assign department
 app.post('/assignDepartment', function (req, res) {
 
+  var employee = setPara(employeeModel, req.body);
+  employee.department = setPara(departmentModel, req.body.department);
 
+  var parameters = {
+    "email" : employee.email,
+    "department" : employee.department.name
+  }
 
+  var statement = "", end = "";
+  //match employee
+  statement += "MATCH (e:Employee{email:{email}}), ";
+  //match department
+  statement += "(d:Department{name:{department}})";
+  //create
+  end += "CREATE (e)-[r:IN]->(d)";
+  statement += end;
+  //start session
+  var session = driver.session();
+  session.run(statement, parameters).subscribe({
+    onNext: function (record) {
+      console.log(record);
+    },
+    onCompleted: function () {
+      res.json(codes.success);
+      session.close();
+    },
+    onError: function (error) {
+      res.json(codes.dbError);
+      console.log(error);
+    }
+  });
+});
+
+//assign manager
+app.post('/assignManager', function (req, res) {
+
+  var parameters = {
+    "email" : req.body.email,
+    "manager" : req.body.manager.email
+  }
+
+  var statement = "", end = "";
+  //match employee
+  statement += "MATCH (e:Employee{email:{email}}), ";
+  //match department
+  statement += "(m:Employee{email:{manager}})";
+  //create
+  end += "CREATE (e)-[r:MANAGER]->(m)";
+  statement += end;
   //start session
   var session = driver.session();
   session.run(statement, parameters).subscribe({
@@ -150,11 +191,9 @@ app.get('/Employees', function (req, res) {
   statement += 'OPTIONAL MATCH (e)-[r:IN]->(d:Department)';
   back += ',d';
   //manager
-  statement += 'OPTIONAL MATCH (e)<-[g:MANAGER]-(m:employee)';
+  statement += 'OPTIONAL MATCH (e)-[g:MANAGER]->(m:Employee)';
   back += ',m';
-
   statement = statement + back;
-
   var data = [];
   var session = driver.session();
   session.run(statement).subscribe({
