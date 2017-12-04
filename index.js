@@ -102,13 +102,9 @@ app.post('/assignDepartment', function (req, res) {
     "department" : employee.department.name
   }
 
-  var statement = "", end = "";
-  //match employee
-  statement += "MATCH (e:Employee{email:{email}}), ";
-  //match department
+  var statement = "MATCH (e:Employee{email:{email}}), ";
   statement += "(d:Department{name:{department}})";
-  //create
-  end += "CREATE (e)-[r:IN]->(d)";
+  var end = "CREATE (e)-[r:IN]->(d)";
   statement += end;
   //start session
   var session = driver.session();
