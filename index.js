@@ -20,7 +20,9 @@ var codes = {
 
 var labels = {
   'employee' : 'Employee',
-  'department' : 'Department'
+  'department' : 'Department',
+  'team': 'Team',
+  'match': 'Match'
 }
 
 //------------------MODELS START------------------//
